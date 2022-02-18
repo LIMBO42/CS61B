@@ -106,6 +106,18 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
+
+    private int findAdjacent(int col, int row){
+        // col 固定不动，row递减
+        //如果一直找不到就返回-1
+        for(int j=row+1;j< board.size();j++){
+            if(board.tile(col,j) != null){
+                return j;
+            }
+        }
+        return -1;
+    }
+
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
@@ -114,6 +126,49 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
+        if(!side.equals(Side.NORTH)){
+            board.setViewingPerspective(side);
+        }
+        boolean [][] isChanged = new boolean[board.size()][board.size()];
+        for(int i=0;i< board.size();i++){
+            for(int j=0;j< board.size();j++){
+                isChanged[i][j]=false;
+            }
+        }
+        for(int row = board.size()-1; row >= 0; row--){
+            for(int col = 0; col < board.size(); col++) {
+                Tile t = board.tile(col, row);
+                if (board.tile(col, row) != null) {
+                    int val = board.tile(col, row).value();
+                    int adjRow = findAdjacent(col, row);
+                    if (adjRow == -1) {
+                        if(row!=board.size()-1) {
+                            board.move(col, board.size() - 1, t);
+                            changed = true;
+                        }
+                    } else if (board.tile(col, adjRow).value() != val) {
+                        if(adjRow != row + 1) {
+                            board.move(col, adjRow - 1, t);
+                            changed = true;
+                        }
+                    } else if (board.tile(col, adjRow).value() == val) {
+                        if (!isChanged[col][adjRow]) {
+                            boolean flag = board.move(col, adjRow, t);
+                            if (flag) {
+                                score += 2 * val;
+                                isChanged[col][adjRow] = true;
+                            }
+                            changed = true;
+                        }else{
+                            board.move(col, adjRow - 1, t);
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        board.setViewingPerspective(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
@@ -138,6 +193,13 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for(int i=0;i<b.size();++i){
+            for(int j=0;j<b.size();++j){
+                if(b.tile(i,j)==null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,7 +210,16 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+
+        for(int i=0;i<b.size();++i){
+            for(int j=0;j<b.size();++j){
+                if(b.tile(i,j)!=null && b.tile(i,j).value()==MAX_PIECE){
+                    return true;
+                }
+            }
+        }
         return false;
+
     }
 
     /**
@@ -159,6 +230,21 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if(emptySpaceExists(b)) return true;
+        int[] arr = {-1,0,1,0,-1};
+        for(int r=0;r<b.size();r++){
+            for(int c=0;c<b.size();c++){
+                for(int i=0;i<4;i++){
+                    int p=r+arr[i];
+                    int q=c+arr[i+1];
+                    if(p>=0&&p<b.size()&&q>=0&&q<b.size()) {
+                        if (b.tile(p, q).value() == b.tile(r, c).value()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
 
