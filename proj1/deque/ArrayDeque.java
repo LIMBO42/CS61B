@@ -7,7 +7,7 @@ import java.util.Iterator;
  * deque implemented by array
  * @author FlyingPig
  */
-public class ArrayDeque<T> implements Deque<T> {
+public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     /** array to save data.*/
     private T[] array;
@@ -30,13 +30,6 @@ public class ArrayDeque<T> implements Deque<T> {
         length = 8;
         front = 4;
         last = 4;
-    }
-
-    /** decide if the deque is empty.
-     * @return true if the deque is empty, vice versa.
-     */
-    public boolean isEmpty() {
-        return size == 0;
     }
 
     /** return the size of the deque. */
@@ -178,6 +171,7 @@ public class ArrayDeque<T> implements Deque<T> {
     }
 
     public boolean equals(Object o) {
+        if(o == null) return false;
         if (o instanceof ArrayDeque) {
             ArrayDeque p = (ArrayDeque) o;
             for (int i = 0; i < size; ++i) {
@@ -185,6 +179,8 @@ public class ArrayDeque<T> implements Deque<T> {
                     return false;
                 }
             }
+        }else{
+            return false;
         }
         return true;
     }

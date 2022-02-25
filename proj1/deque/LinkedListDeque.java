@@ -4,9 +4,9 @@ package deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class LinkedListDeque<T> implements Deque<T> {
+public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
 
-    class LinkedNode{
+    private class LinkedNode{
         T item;
         LinkedNode prev;
         LinkedNode next;
@@ -119,6 +119,7 @@ public class LinkedListDeque<T> implements Deque<T> {
     }
 
     public boolean equals(Object o) {
+        if(o == null) return false;
         if(o instanceof LinkedListDeque){
             LinkedListDeque p = (LinkedListDeque) o;
             if(p.size != size) return false;
@@ -129,6 +130,8 @@ public class LinkedListDeque<T> implements Deque<T> {
                 head1 = head1.next;
                 head2 = head2.next;
             }
+        }else{
+            return false;
         }
         return true;
     }
