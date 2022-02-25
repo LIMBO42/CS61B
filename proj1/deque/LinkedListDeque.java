@@ -130,7 +130,7 @@ public class LinkedListDeque<T> implements Deque<T> {
                 head2 = head2.next;
             }
         }
-        return false;
+        return true;
     }
 
     public T getRecursive(int index) {

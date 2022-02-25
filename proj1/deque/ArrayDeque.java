@@ -1,6 +1,8 @@
 package deque;
 import deque.Deque;
 
+import java.util.Iterator;
+
 /** second part of project1A.
  * deque implemented by array
  * @author FlyingPig
@@ -168,6 +170,40 @@ public class ArrayDeque<T> implements Deque<T> {
         while (ptr != last) {
             System.out.print(array[ptr] + " ");
             ptr = plusOne(ptr, length);
+        }
+    }
+
+    public Iterator<T> iterator() {
+        return new ArrayDequeIterator();
+    }
+
+    public boolean equals(Object o) {
+        if (o instanceof ArrayDeque) {
+            ArrayDeque p = (ArrayDeque) o;
+            for (int i = 0; i < size; ++i) {
+                if (!p.get(i).equals(array[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private class ArrayDequeIterator implements Iterator {
+
+        private int pSize = 0;
+
+        @Override
+        public boolean hasNext() {
+            if (pSize < size) return true;
+            return false;
+        }
+
+        @Override
+        public Object next() {
+            int tmp = pSize;
+            pSize++;
+            return get(tmp);
         }
     }
 
