@@ -1,9 +1,10 @@
+
 package deque;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class LinkedListDeque<T>  {
+public class LinkedListDeque<T> implements Deque<T> {
 
     class LinkedNode{
         T item;
@@ -18,7 +19,7 @@ public class LinkedListDeque<T>  {
     private int size;
     private LinkedNode head, tail;
 
-    public LinkedListDeque(){
+    public LinkedListDeque() {
         size = 0;
         head = new LinkedNode();
         tail = new LinkedNode();
@@ -26,7 +27,8 @@ public class LinkedListDeque<T>  {
         tail.prev = head;
     }
 
-    public void addFirst(T item){
+    @Override
+    public void addFirst(T item) {
         LinkedNode firstNode = new LinkedNode(item);
         firstNode.next = head.next;
         head.next.prev = firstNode;
@@ -35,7 +37,8 @@ public class LinkedListDeque<T>  {
         size++;
     }
 
-    public void addLast(T item){
+    @Override
+    public void addLast(T item) {
         LinkedNode lastNode = new LinkedNode(item);
         lastNode.next = tail;
         lastNode.prev = tail.prev;
@@ -44,15 +47,14 @@ public class LinkedListDeque<T>  {
         size++;
     }
 
-    public boolean isEmpty(){
-        return size == 0;
-    }
 
-    public int size(){
+    @Override
+    public int size() {
         return size;
     }
 
-    public void printDeque(){
+    @Override
+    public void printDeque() {
         LinkedNode p = head.next;
         while(p != tail){
             System.out.print(p.item+" ");
@@ -61,7 +63,8 @@ public class LinkedListDeque<T>  {
         System.out.println();
     }
 
-    public T removeFirst(){
+    @Override
+    public T removeFirst() {
         if(size == 0) return null;
         LinkedNode tmp = head.next;
         tmp.next.prev = head;
@@ -70,7 +73,8 @@ public class LinkedListDeque<T>  {
         return tmp.item;
     }
 
-    public  T removeLast(){
+    @Override
+    public  T removeLast() {
         if(size == 0) return null;
         LinkedNode tmp = tail.prev;
         tail.prev = tmp.prev;
@@ -79,7 +83,8 @@ public class LinkedListDeque<T>  {
         return tmp.item;
     }
 
-    public T get(int index){
+    @Override
+    public T get(int index) {
         int num = 0;
         LinkedNode p = head.next;
         while(num < index && num < size){
@@ -91,11 +96,11 @@ public class LinkedListDeque<T>  {
         return p.item;
     }
 
-    public Iterator<T> iterator(){
+    public Iterator<T> iterator() {
         return new LinkedListDequeIterator();
     }
 
-    private class LinkedListDequeIterator implements Iterator<T>{
+    private class LinkedListDequeIterator implements Iterator<T> {
 
         private int pSize = 0;
 
@@ -113,7 +118,7 @@ public class LinkedListDeque<T>  {
         }
     }
 
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         if(o instanceof LinkedListDeque){
             LinkedListDeque p = (LinkedListDeque) o;
             if(p.size != size) return false;
@@ -128,7 +133,7 @@ public class LinkedListDeque<T>  {
         return false;
     }
 
-    public T getRecursive(int index){
+    public T getRecursive(int index) {
         return get(index);
     }
 }
