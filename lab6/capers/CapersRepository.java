@@ -1,6 +1,7 @@
 package capers;
 
-import java.io.File;
+import java.io.*;
+
 import static capers.Utils.*;
 
 /** A repository for Capers 
@@ -18,7 +19,7 @@ public class CapersRepository {
     static final File CWD = new File(System.getProperty("user.dir"));
 
     /** Main metadata folder. */
-    static final File CAPERS_FOLDER = null; // TODO Hint: look at the `join`
+    static final File CAPERS_FOLDER = Utils.join(CWD,".capers/"); // TODO Hint: look at the `join`
                                             //      function in Utils
 
     /**
@@ -32,6 +33,11 @@ public class CapersRepository {
      */
     public static void setupPersistence() {
         // TODO
+        CAPERS_FOLDER.mkdir();
+        File dogsFile = Utils.join(CAPERS_FOLDER,"dogs/");
+        dogsFile.mkdir();
+        File storyFile = Utils.join(CAPERS_FOLDER,"story");
+        //storyFile.createNewFile();
     }
 
     /**
@@ -39,8 +45,44 @@ public class CapersRepository {
      * to a file called `story` in the .capers directory.
      * @param text String of the text to be appended to the story
      */
-    public static void writeStory(String text) {
+    public static void writeStory(String text){
         // TODO
+        File storyFile = Utils.join(CAPERS_FOLDER,"story");
+        if(!storyFile.exists()) {
+            try {
+                storyFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            FileWriter fileWritter = new FileWriter(storyFile.getAbsoluteFile(),true);
+            fileWritter.append(text+"\n");
+            fileWritter.close();
+            //System.out.println(text);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //读文件
+        InputStreamReader isr = null;
+        try {
+            isr = new InputStreamReader(new FileInputStream(storyFile), "utf-8");
+            BufferedReader br = new BufferedReader(isr);
+            String lineTxt = null;
+            while ((lineTxt = br.readLine()) != null) {
+                System.out.println(lineTxt);
+            }
+            br.close();
+            isr.close();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -50,6 +92,10 @@ public class CapersRepository {
      */
     public static void makeDog(String name, String breed, int age) {
         // TODO
+        //System.out.println("makeDog");
+        Dog aDog = new Dog(name, breed, age);
+        System.out.println(aDog.toString());
+        aDog.saveDog();
     }
 
     /**
@@ -60,5 +106,10 @@ public class CapersRepository {
      */
     public static void celebrateBirthday(String name) {
         // TODO
+        File dogFile = Utils.join(CAPERS_FOLDER,"dogs/"+name);
+        Dog aDog = Utils.readObject(dogFile,Dog.class);
+        aDog.haveBirthday();
+        //System.out.println(aDog.toString());
+        Utils.writeObject(dogFile,aDog);
     }
 }

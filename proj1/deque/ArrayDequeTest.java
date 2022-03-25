@@ -2,6 +2,8 @@ package deque;
 
 import org.junit.Test;
 
+import java.util.Comparator;
+
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
@@ -14,6 +16,13 @@ public class ArrayDequeTest {
     public void addIsEmptySizeTest() {
 
         //System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
+        MaxArrayDeque<Integer> ll = new MaxArrayDeque<Integer>(new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return 0;
+            }
+        });
+
 
         ArrayDeque<String> lld1 = new ArrayDeque<String>();
 
