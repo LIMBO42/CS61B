@@ -23,7 +23,32 @@ public class Repository {
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
-    public static final File GITLET_DIR = join(CWD, ".gitlet");
+    public static final File GITLET_DIR = join(CWD, ".gitlet/");
+    //暂存区
+    public static final File STAGE_DIR = Utils.join(GITLET_DIR,"stage/");
+    //blobs
+    public static final File BLOB_DIR = Utils.join(GITLET_DIR,"blobs/");
+    //commits
+    public static final File COMMIT_DIR = Utils.join(GITLET_DIR,"commits/");
 
     /* TODO: fill in the rest of this class. */
+    public static boolean exsistGit(){
+        return GITLET_DIR.exists();
+    }
+    public static void setupPersistence(){
+        //不存在.git
+        if(!exsistGit()){
+            GITLET_DIR.mkdir();
+        }
+        if(!STAGE_DIR.exists()){
+            STAGE_DIR.mkdir();
+        }
+        if(!BLOB_DIR.exists()){
+            BLOB_DIR.mkdir();
+        }
+        if(!COMMIT_DIR.exists()){
+            COMMIT_DIR.mkdir();
+        }
+    }
+
 }
