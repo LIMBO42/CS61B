@@ -1,17 +1,10 @@
 package gitlet;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -19,19 +12,35 @@ import java.util.Formatter;
 import java.util.List;
 
 
-/** Assorted utilities.
- *  @author P. N. Hilfinger
+/**
+ * Assorted utilities.
+ *
+ * @author P. N. Hilfinger
  */
-class Utils {
+public class Utils {
 
     /* SHA-1 HASH VALUES. */
 
-    /** The length of a complete SHA-1 UID as a hexadecimal numeral. */
+    /**
+     * The length of a complete SHA-1 UID as a hexadecimal numeral.
+     */
     static final int UID_LENGTH = 40;
+    /**
+     * Filter out all but plain files.
+     */
+    private static final FilenameFilter PLAIN_FILES =
+            new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return new File(dir, name).isFile();
+                }
+            };
 
-    /** Returns the SHA-1 hash of the concatenation of VALS, which may
-     *  be any mixture of byte arrays and Strings. */
-    static String sha1(Object... vals) {
+    /**
+     * Returns the SHA-1 hash of the concatenation of VALS, which may
+     * be any mixture of byte arrays and Strings.
+     */
+    public static String sha1(Object... vals) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             for (Object val : vals) {
@@ -53,19 +62,23 @@ class Utils {
         }
     }
 
-    /** Returns the SHA-1 hash of the concatenation of the strings in
-     *  VALS. */
-    static String sha1(List<Object> vals) {
+    /* FILE DELETION */
+
+    /**
+     * Returns the SHA-1 hash of the concatenation of the strings in
+     * VALS.
+     */
+    public static String sha1(List<Object> vals) {
         return sha1(vals.toArray(new Object[vals.size()]));
     }
 
-    /* FILE DELETION */
-
-    /** Deletes FILE if it exists and is not a directory.  Returns true
-     *  if FILE was deleted, and false otherwise.  Refuses to delete FILE
-     *  and throws IllegalArgumentException unless the directory designated by
-     *  FILE also contains a directory named .gitlet. */
-    static boolean restrictedDelete(File file) {
+    /**
+     * Deletes FILE if it exists and is not a directory.  Returns true
+     * if FILE was deleted, and false otherwise.  Refuses to delete FILE
+     * and throws IllegalArgumentException unless the directory designated by
+     * FILE also contains a directory named .gitlet.
+     */
+    public static boolean restrictedDelete(File file) {
         if (!(new File(file.getParentFile(), ".gitlet")).isDirectory()) {
             throw new IllegalArgumentException("not .gitlet working directory");
         }
@@ -76,20 +89,24 @@ class Utils {
         }
     }
 
-    /** Deletes the file named FILE if it exists and is not a directory.
-     *  Returns true if FILE was deleted, and false otherwise.  Refuses
-     *  to delete FILE and throws IllegalArgumentException unless the
-     *  directory designated by FILE also contains a directory named .gitlet. */
-    static boolean restrictedDelete(String file) {
+    /* READING AND WRITING FILE CONTENTS */
+
+    /**
+     * Deletes the file named FILE if it exists and is not a directory.
+     * Returns true if FILE was deleted, and false otherwise.  Refuses
+     * to delete FILE and throws IllegalArgumentException unless the
+     * directory designated by FILE also contains a directory named .gitlet.
+     */
+    public static boolean restrictedDelete(String file) {
         return restrictedDelete(new File(file));
     }
 
-    /* READING AND WRITING FILE CONTENTS */
-
-    /** Return the entire contents of FILE as a byte array.  FILE must
-     *  be a normal file.  Throws IllegalArgumentException
-     *  in case of problems. */
-    static byte[] readContents(File file) {
+    /**
+     * Return the entire contents of FILE as a byte array.  FILE must
+     * be a normal file.  Throws IllegalArgumentException
+     * in case of problems.
+     */
+    public static byte[] readContents(File file) {
         if (!file.isFile()) {
             throw new IllegalArgumentException("must be a normal file");
         }
@@ -100,28 +117,29 @@ class Utils {
         }
     }
 
-    /** Return the entire contents of FILE as a String.  FILE must
-     *  be a normal file.  Throws IllegalArgumentException
-     *  in case of problems. */
-    static String readContentsAsString(File file) {
-        if (!file.exists()) {
-            return new String();
-        }
+    /**
+     * Return the entire contents of FILE as a String.  FILE must
+     * be a normal file.  Throws IllegalArgumentException
+     * in case of problems.
+     */
+    public static String readContentsAsString(File file) {
         return new String(readContents(file), StandardCharsets.UTF_8);
     }
 
-    /** Write the result of concatenating the bytes in CONTENTS to FILE,
-     *  creating or overwriting it as needed.  Each object in CONTENTS may be
-     *  either a String or a byte array.  Throws IllegalArgumentException
-     *  in case of problems. */
-    static void writeContents(File file, Object... contents) {
+    /**
+     * Write the result of concatenating the bytes in CONTENTS to FILE,
+     * creating or overwriting it as needed.  Each object in CONTENTS may be
+     * either a String or a byte array.  Throws IllegalArgumentException
+     * in case of problems.
+     */
+    public static void writeContents(File file, Object... contents) {
         try {
             if (file.isDirectory()) {
                 throw
-                    new IllegalArgumentException("cannot overwrite directory");
+                        new IllegalArgumentException("cannot overwrite directory");
             }
             BufferedOutputStream str =
-                new BufferedOutputStream(Files.newOutputStream(file.toPath()));
+                    new BufferedOutputStream(Files.newOutputStream(file.toPath()));
             for (Object obj : contents) {
                 if (obj instanceof byte[]) {
                     str.write((byte[]) obj);
@@ -135,42 +153,39 @@ class Utils {
         }
     }
 
-    /** Return an object of type T read from FILE, casting it to EXPECTEDCLASS.
-     *  Throws IllegalArgumentException in case of problems. */
-    static <T extends Serializable> T readObject(File file,
-                                                 Class<T> expectedClass) {
+    /**
+     * Return an object of type T read from FILE, casting it to EXPECTEDCLASS.
+     * Throws IllegalArgumentException in case of problems.
+     */
+    public static <T extends Serializable> T readObject(File file,
+                                                        Class<T> expectedClass) {
         try {
             ObjectInputStream in =
-                new ObjectInputStream(new FileInputStream(file));
+                    new ObjectInputStream(new FileInputStream(file));
             T result = expectedClass.cast(in.readObject());
             in.close();
             return result;
         } catch (IOException | ClassCastException
-                 | ClassNotFoundException excp) {
+                | ClassNotFoundException excp) {
             throw new IllegalArgumentException(excp.getMessage());
         }
     }
 
-    /** Write OBJ to FILE. */
-    static void writeObject(File file, Serializable obj) {
+    /* DIRECTORIES */
+
+    /**
+     * Write OBJ to FILE.
+     */
+    public static void writeObject(File file, Serializable obj) {
         writeContents(file, serialize(obj));
     }
 
-    /* DIRECTORIES */
-
-    /** Filter out all but plain files. */
-    private static final FilenameFilter PLAIN_FILES =
-        new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return new File(dir, name).isFile();
-            }
-        };
-
-    /** Returns a list of the names of all plain files in the directory DIR, in
-     *  lexicographic order as Java Strings.  Returns null if DIR does
-     *  not denote a directory. */
-    static List<String> plainFilenamesIn(File dir) {
+    /**
+     * Returns a list of the names of all plain files in the directory DIR, in
+     * lexicographic order as Java Strings.  Returns null if DIR does
+     * not denote a directory.
+     */
+    public static List<String> plainFilenamesIn(File dir) {
         String[] files = dir.list(PLAIN_FILES);
         if (files == null) {
             return null;
@@ -180,34 +195,42 @@ class Utils {
         }
     }
 
-    /** Returns a list of the names of all plain files in the directory DIR, in
-     *  lexicographic order as Java Strings.  Returns null if DIR does
-     *  not denote a directory. */
-    static List<String> plainFilenamesIn(String dir) {
+    /**
+     * Returns a list of the names of all plain files in the directory DIR, in
+     * lexicographic order as Java Strings.  Returns null if DIR does
+     * not denote a directory.
+     */
+    public static List<String> plainFilenamesIn(String dir) {
         return plainFilenamesIn(new File(dir));
     }
 
     /* OTHER FILE UTILITIES */
 
-    /** Return the concatentation of FIRST and OTHERS into a File designator,
-     *  analogous to the {@link java.nio.file.Paths.#get(String, String[])}
-     *  method. */
-    static File join(String first, String... others) {
+    /**
+     * Return the concatentation of FIRST and OTHERS into a File designator,
+     * analogous to the {@link java.nio.file.Paths .#get(String, String[])}
+     * method.
+     */
+    public static File join(String first, String... others) {
         return Paths.get(first, others).toFile();
     }
 
-    /** Return the concatentation of FIRST and OTHERS into a File designator,
-     *  analogous to the {@link java.nio.file.Paths.#get(String, String[])}
-     *  method. */
-    static File join(File first, String... others) {
+    /**
+     * Return the concatentation of FIRST and OTHERS into a File designator,
+     * analogous to the {@link java.nio.file.Paths .#get(String, String[])}
+     * method.
+     */
+    public static File join(File first, String... others) {
         return Paths.get(first.getPath(), others).toFile();
     }
 
 
     /* SERIALIZATION UTILITIES */
 
-    /** Returns a byte array containing the serialized contents of OBJ. */
-    static byte[] serialize(Serializable obj) {
+    /**
+     * Returns a byte array containing the serialized contents of OBJ.
+     */
+    public static byte[] serialize(Serializable obj) {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ObjectOutputStream objectStream = new ObjectOutputStream(stream);
@@ -223,20 +246,37 @@ class Utils {
 
     /* MESSAGES AND ERROR REPORTING */
 
-    /** Return a GitletException whose message is composed from MSG and ARGS as
-     *  for the String.format method. */
-    static GitletException error(String msg, Object... args) {
+    /**
+     * Return a GitletException whose message is composed from MSG and ARGS as
+     * for the String.format method.
+     */
+    public static GitletException error(String msg, Object... args) {
         return new GitletException(String.format(msg, args));
     }
 
-    /** Print a message composed from MSG and ARGS as for the String.format
-     *  method, followed by a newline. */
-    static void message(String msg, Object... args) {
+    /**
+     * Print a message composed from MSG and ARGS as for the String.format
+     * method, followed by a newline.
+     */
+    public static void message(String msg, Object... args) {
         System.out.printf(msg, args);
         System.out.println();
     }
 
-//    static String sha1Initial = "0b67f40bf076b008ee0be8a8125a90592f686b30";
-
-//    static String seperator = System.getProperty("file.seperator");
+    /**
+     * Deserializes file from PATH return OBJECT.
+     **/
+    public static Object deserialize(Path path) {
+        File tmp = path.toFile();
+        Object obj = null;
+        try {
+            ObjectInputStream inp = new ObjectInputStream(
+                    new FileInputStream(tmp));
+            obj = inp.readObject();
+            inp.close();
+        } catch (IOException | ClassNotFoundException excp) {
+            excp.printStackTrace();
+        }
+        return obj;
+    }
 }
